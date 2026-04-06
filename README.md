@@ -8,16 +8,18 @@
 2. Backend (Python)
 
    cd backend
+   Environment variables, Update `.env` file with required values before starting.
 
    # create venv and activate (Windows)
 
-   python -m venv backend/.venv
-   backend\.venv\Scripts\activate
+   python -m venv .venv
+   .venv\Scripts\activate
 
    # or macOS / Linux
 
-   python3 -m venv backend/.venv
-   source backend/.venv/bin/activate
+   python3 -m venv .venv
+   source .venv/bin/activate
+   
 
    pip install -r requirements.txt
 
@@ -25,14 +27,13 @@
 
    uvicorn main:app --reload
 
-3. Frontend (JS)
-
+4. Frontend (JS)
+   open new terminal
    cd frontend
    npm install
    npm run dev
 
-4. Environment
-   - Environment variables, copy or edit `backend/.env` before starting.
+5. Environment
    - Backend defaults to port 8000; frontend (Vite) defaults to 5173.
 
 That's it — open the frontend URL shown by Vite (usually http://localhost:5173) and verify the backend at http://localhost:8000/docs
