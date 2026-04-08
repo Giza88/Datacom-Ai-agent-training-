@@ -7,7 +7,7 @@ export function useSlideGenerator() {
 
   async function generate(req: SlideRequest): Promise<void> {
     setLoading(true);
-    setStatus("Generating...");
+    setStatus("Generating AI slides...");
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
@@ -22,12 +22,12 @@ export function useSlideGenerator() {
       const blob: Blob = await res.blob();
       const a = document.createElement("a") as HTMLAnchorElement;
       a.href = URL.createObjectURL(blob);
-      a.download = "slides.pptx";
+      a.download = `${req.prompt.slice(0, 30)}.pptx`;
       a.click();
       URL.revokeObjectURL(a.href);
-      setStatus("✅ Downloaded!");
+      setStatus("✅ AI slides downloaded!");
     } catch {
-      setStatus("Cannot reach backend. Is FastAPI running?");
+      setStatus("Cannot reach backend.");
     } finally {
       setLoading(false);
     }
