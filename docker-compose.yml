@@ -5,9 +5,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-      # Optional: reach Ollama from the host while debugging
+      # Optional: expose in-container Ollama to the host for debugging
       # - "11434:11434"
-    # Ollama runs inside this image; OLLAMA_HOST is set in the Dockerfile.
     restart: unless-stopped
 
   frontend:

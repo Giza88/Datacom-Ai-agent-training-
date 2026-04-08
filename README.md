@@ -1,34 +1,48 @@
 # Quick Start — Clone, Install, Run
 
-## 0. Ollama (local LLM — no API key)
+## 0. Ollama (LLM — no API key)
 
-Slide copy is generated with **[Ollama](https://ollama.com/)** via the Microsoft Agent Framework (`OllamaChatClient`). There is **no API key**; the backend talks to whatever model you run locally.
+Slide copy is generated with **[Ollama](https://ollama.com/)** over its HTTP API (`/api/generate`): a planner builds an outline, then a writer fills each slide. There is **no API key**.
 
-1. Install and start Ollama, then pull the default model (must match `OLLAMA_MODEL`, default `llama3.1:latest`):
+How you run Ollama depends on the path below:
+
+- **Docker / Azure Container Apps:** Ollama runs **inside the backend container** (see `backend/Dockerfile` and `backend/docker-entrypoint.sh`). The app uses **`OLLAMA_HOST=http://127.0.0.1:11434`**. You do **not** install or host Ollama separately.
+- **Local `uvicorn` dev:** Install Ollama on your machine and run it (or use its tray/service). Defaults: `OLLAMA_HOST=http://localhost:11434`, `OLLAMA_MODEL=llama3.1:latest`.
+
+### Docker / production backend image
+
+- **Single container** starts **`ollama serve`** in the background, waits until `http://127.0.0.1:11434/api/tags` responds, then runs **FastAPI** via `agent_main.py` (uvicorn on **`0.0.0.0`**, port from **`PORT`** env or **8000**).
+- During **`docker build`**, the image runs a short-lived Ollama and executes **`ollama pull llama3.1:latest`** so the model is **baked into the image** (large download and layer).
+- **Azure Container Apps:** Deploy this backend image; configure ingress to the container port (typically **8000**, or match **`PORT`** if your revision sets it). Ollama stays **internal** to the container on **11434** — you usually only expose **8000** publicly. Ensure the revision has **enough CPU/RAM** for the pulled model (e.g. Llama 3.1 is several GiB at runtime).
+
+```bash
+docker compose build backend
+docker compose up backend
+```
+
+### Local development (host Ollama)
+
+1. Install Ollama, pull the model (must match `OLLAMA_MODEL`):
 
    ```bash
    ollama pull llama3.1
    ollama serve
    ```
 
-   `ollama serve` is often already running as a background service after install; if requests fail, start it explicitly.
-
 2. Optional environment variables (no secrets):
 
-   | Variable       | Default                      | Purpose                                      |
-   | -------------- | ---------------------------- | -------------------------------------------- |
-   | `OLLAMA_HOST`  | `http://localhost:11434`     | Ollama HTTP API base URL                     |
-   | `OLLAMA_MODEL` | `llama3.1:latest`            | Model tag (`ollama list` after pulling)     |
+   | Variable       | Default (local dev)      | Purpose                          |
+   | -------------- | ------------------------ | -------------------------------- |
+   | `OLLAMA_HOST`  | `http://localhost:11434` | Ollama HTTP API base URL         |
+   | `OLLAMA_MODEL` | `llama3.1:latest`        | Model tag (`ollama list`)        |
 
-   **`docker compose`** builds a backend image that **runs Ollama inside the same container** (see `backend/Dockerfile`); `OLLAMA_HOST` defaults to `http://127.0.0.1:11434` there. For local `uvicorn` dev with Ollama on the host, keep the default `http://localhost:11434`.
-
-3. Optional sanity check (from `backend/`):
+3. Optional sanity check (from `backend/` with venv active — hits `GET /api/tags`):
 
    ```bash
    python smoke_ollama_agent.py
    ```
 
-   You should see a short greeting printed. If Ollama reports insufficient **system RAM** for `llama3.1`, pull a smaller model and set `OLLAMA_MODEL` to that tag, or free memory on the host.
+   If Ollama reports insufficient **system RAM**, use a smaller model and set `OLLAMA_MODEL` accordingly.
 
 ## 1. Clone
 
@@ -88,7 +102,7 @@ npm run dev
 
 Open the frontend URL shown by Vite (usually `http://localhost:5173`).
 
-Verify the backend API docs at:
+Backend API docs:
 
 ```text
 http://localhost:8000/docs

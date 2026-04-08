@@ -1,19 +1,19 @@
-"""One-shot check that Ollama + Agent Framework respond (run from repo: python smoke_ollama_agent.py)."""
+"""Sanity check: Ollama HTTP API reachable (run from backend/: python smoke_ollama_agent.py)."""
 import asyncio
 
-from agent_framework.ollama import OllamaChatClient
+import aiohttp
 
-from config import OLLAMA_HOST, OLLAMA_MODEL
+from config import OLLAMA_HOST
 
 
 async def main() -> None:
-    client = OllamaChatClient(model=OLLAMA_MODEL, host=OLLAMA_HOST)
-    agent = client.as_agent(
-        name="smoke",
-        instructions="Reply with exactly one short sentence.",
-    )
-    response = await agent.run("Say hello.")
-    print(response.text)
+    base = OLLAMA_HOST.rstrip("/")
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{base}/api/tags") as resp:
+            resp.raise_for_status()
+            data = await resp.json()
+        models = data.get("models") or []
+        print(f"Ollama OK at {base} — {len(models)} model(s) in library.")
 
 
 if __name__ == "__main__":

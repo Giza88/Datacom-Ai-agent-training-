@@ -3,22 +3,17 @@ from io import BytesIO
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
 
-from services.ai_generator import generate_slide_content
-from services.pptx_engine import build_presentation
+from .orchestrator import SlideOrchestrator
+from .ppt_builder import build_presentation
+from .schemas import SlideRequest
 
 router = APIRouter()
+orch = SlideOrchestrator()
 
 PPTX_MEDIA_TYPE = (
     "application/vnd.openxmlformats-officedocument.presentationml.presentation"
 )
-
-
-class SlideRequest(BaseModel):
-    prompt: str
-    slide_count: int = 5
-    theme: str = "default"
 
 
 def _safe_pptx_filename(prompt: str, max_stem: int = 30) -> str:
@@ -31,7 +26,7 @@ def _safe_pptx_filename(prompt: str, max_stem: int = 30) -> str:
 
 @router.post("/generate")
 async def generate_slides(req: SlideRequest):
-    slides_data = await generate_slide_content(req.prompt, req.slide_count)
+    slides_data = await orch.run(req.prompt, req.slide_count)
     pptx_bytes = build_presentation(slides_data)
     filename = _safe_pptx_filename(req.prompt)
     return StreamingResponse(
