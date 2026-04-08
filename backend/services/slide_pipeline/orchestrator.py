@@ -3,6 +3,8 @@ import logging
 
 import aiohttp
 
+from services.ollama_client import OllamaClient
+
 from .planner import PlannerAgent
 from .writer import WriterAgent
 
@@ -10,9 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class SlideOrchestrator:
-    def __init__(self) -> None:
-        self.planner = PlannerAgent()
-        self.writer = WriterAgent()
+    def __init__(self, ollama: OllamaClient | None = None) -> None:
+        self._ollama = ollama or OllamaClient()
+        self.planner = PlannerAgent(self._ollama)
+        self.writer = WriterAgent(self._ollama)
 
     async def run(self, prompt: str, slide_count: int = 5) -> list[dict]:
         slide_count = max(1, slide_count)

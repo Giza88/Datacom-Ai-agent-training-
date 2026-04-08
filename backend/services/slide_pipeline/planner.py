@@ -1,6 +1,7 @@
 import aiohttp
 
-from services.llm_utils import extract_json_payload, ollama_generate
+from services.llm_utils import extract_json_payload
+from services.ollama_client import OllamaClient
 
 PLANNER_INSTRUCTIONS = """You are a presentation architect.
 Given a topic and slide count, return ONLY valid JSON:
@@ -10,6 +11,9 @@ The outline must have exactly the requested number of slides, slide_number 1..N,
 
 
 class PlannerAgent:
+    def __init__(self, client: OllamaClient | None = None) -> None:
+        self._ollama = client if client is not None else OllamaClient()
+
     async def run(
         self,
         session: aiohttp.ClientSession,
@@ -19,7 +23,7 @@ class PlannerAgent:
         user_message = (
             f"{PLANNER_INSTRUCTIONS}\n\nTopic: {prompt}. Slides: {slide_count}"
         )
-        raw = await ollama_generate(session, user_message)
+        raw = await self._ollama.generate(session, user_message)
         if not raw.strip():
             raise RuntimeError("Planner returned an empty response")
 

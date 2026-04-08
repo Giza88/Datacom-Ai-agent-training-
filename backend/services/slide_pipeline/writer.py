@@ -3,7 +3,8 @@ import logging
 
 import aiohttp
 
-from services.llm_utils import extract_json_payload, ollama_generate
+from services.llm_utils import extract_json_payload
+from services.ollama_client import OllamaClient
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +16,13 @@ JSON only."""
 
 
 class WriterAgent:
+    def __init__(self, client: OllamaClient | None = None) -> None:
+        self._ollama = client if client is not None else OllamaClient()
+
     async def run(self, session: aiohttp.ClientSession, item: dict) -> dict:
         payload_text = f"{WRITER_INSTRUCTIONS}\n\n{json.dumps(item)}"
         try:
-            raw = await ollama_generate(session, payload_text)
+            raw = await self._ollama.generate(session, payload_text)
             if not raw.strip():
                 raise RuntimeError("Writer returned an empty response")
 
