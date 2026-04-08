@@ -1,5 +1,9 @@
 import { useState } from "react";
 import type { SlideRequest } from "../types/api";
+import {
+  parseFilenameFromContentDisposition,
+  safePptxFilenameFromPrompt,
+} from "../utils/pptxDownloadFilename";
 
 export function useSlideGenerator() {
   const [status, setStatus] = useState<string>("");
@@ -19,10 +23,14 @@ export function useSlideGenerator() {
         setStatus(`Error ${res.status}: ${t || "unknown"}`);
         return;
       }
+      const contentDisposition = res.headers.get("Content-Disposition");
       const blob: Blob = await res.blob();
+      const downloadName =
+        parseFilenameFromContentDisposition(contentDisposition) ??
+        safePptxFilenameFromPrompt(req.prompt);
       const a = document.createElement("a") as HTMLAnchorElement;
       a.href = URL.createObjectURL(blob);
-      a.download = `${req.prompt.slice(0, 30)}.pptx`;
+      a.download = downloadName;
       a.click();
       URL.revokeObjectURL(a.href);
       setStatus("✅ AI slides downloaded!");

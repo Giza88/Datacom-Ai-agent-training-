@@ -5,11 +5,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      # Ollama on the host machine (no API key). Adjust if Ollama listens elsewhere.
-      OLLAMA_HOST: http://host.docker.internal:11434
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      # Optional: reach Ollama from the host while debugging
+      # - "11434:11434"
+    # Ollama runs inside this image; OLLAMA_HOST is set in the Dockerfile.
     restart: unless-stopped
 
   frontend:

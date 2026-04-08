@@ -20,7 +20,7 @@ Slide copy is generated with **[Ollama](https://ollama.com/)** via the Microsoft
    | `OLLAMA_HOST`  | `http://localhost:11434`     | Ollama HTTP API base URL                     |
    | `OLLAMA_MODEL` | `llama3.1:latest`            | Model tag (`ollama list` after pulling)     |
 
-   When the API runs **inside Docker** and Ollama is on your machine, set `OLLAMA_HOST` to `http://host.docker.internal:11434` (see `docker-compose.yml`).
+   **`docker compose`** builds a backend image that **runs Ollama inside the same container** (see `backend/Dockerfile`); `OLLAMA_HOST` defaults to `http://127.0.0.1:11434` there. For local `uvicorn` dev with Ollama on the host, keep the default `http://localhost:11434`.
 
 3. Optional sanity check (from `backend/`):
 

@@ -1,7 +1,6 @@
 """Slide outline generation via local Ollama (Microsoft Agent Framework)."""
 import json
 
-from agent_framework import Agent
 from agent_framework.ollama import OllamaChatClient
 
 from config import OLLAMA_HOST, OLLAMA_MODEL
@@ -11,7 +10,6 @@ Given a topic and slide count, return ONLY valid JSON - no markdown:
 {"slides": [{"title": "...", "bullets": ["...", "...", "..."]}]}"""
 
 _client: OllamaChatClient | None = None
-_agent: Agent | None = None
 
 
 def _get_client() -> OllamaChatClient:
@@ -21,17 +19,6 @@ def _get_client() -> OllamaChatClient:
         # host = base URL for Ollama (default http://localhost:11434); model = pulled name e.g. llama3.1:latest
         _client = OllamaChatClient(model=OLLAMA_MODEL, host=OLLAMA_HOST)
     return _client
-
-
-def _get_agent() -> Agent:
-    """Agent bound to the Ollama client; all chat goes through this instance."""
-    global _agent
-    if _agent is None:
-        _agent = _get_client().as_agent(
-            name="slide_writer",
-            instructions=SYSTEM_PROMPT,
-        )
-    return _agent
 
 
 def _extract_json_payload(raw_text: str) -> dict:
@@ -47,7 +34,11 @@ def _extract_json_payload(raw_text: str) -> dict:
 
 
 async def generate_slide_content(prompt: str, slide_count: int = 5) -> list[dict]:
-    agent = _get_agent()
+    # New agent per request — Agent.run() accumulates history; a singleton would leak context across users/requests.
+    agent = _get_client().as_agent(
+        name="slide_writer",
+        instructions=SYSTEM_PROMPT,
+    )
     user_message = f"Topic: {prompt}. Slides: {slide_count}"
     response = await agent.run(user_message)
     raw = response.text
