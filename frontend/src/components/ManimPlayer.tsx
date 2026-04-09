@@ -1,38 +1,24 @@
 interface Props {
-  videoUrl: string | null;
+  videoUrl: string;
   loading: boolean;
-  error: string | null;
+  error: string;
   onRender: () => void;
 }
 
-export function ManimPlayer({
-  videoUrl,
-  loading,
-  error,
-  onRender,
-}: Props) {
+export function ManimPlayer({ videoUrl, loading, error, onRender }: Props) {
   return (
-    <div style={{ marginTop: 24 }}>
-      <button
-        type="button"
-        onClick={onRender}
-        disabled={loading}
-        style={{ padding: "10px 16px", fontSize: 15 }}
-      >
-        {loading ? "Rendering…" : "Render Manim scene"}
+    <div style={{ marginTop: 20 }}>
+      <button onClick={onRender} disabled={loading}>
+        {loading ? "Rendering..." : "Render Manim Scene"}
       </button>
-      {loading && (
-        <p style={{ marginTop: 12, color: "#666" }}>Rendering scene…</p>
-      )}
-      {error && (
-        <p style={{ marginTop: 12, color: "#c62828" }}>{error}</p>
-      )}
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
       {videoUrl && (
         <video
-          style={{ marginTop: 16, width: "100%", borderRadius: 8 }}
           src={videoUrl}
           controls
-          playsInline
+          style={{ width: "100%", marginTop: 12 }}
         />
       )}
     </div>

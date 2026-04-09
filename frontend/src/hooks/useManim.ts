@@ -1,62 +1,31 @@
 import { useState } from "react";
-import { apiUrl } from "../config/apiBase";
-
-const BACKEND_HINT =
-  "Start the API from the backend folder: uvicorn main:app --reload --host 127.0.0.1 --port 8000 (or docker compose up backend).";
-
-function errorTextFromBody(data: unknown, fallback: string): string {
-  if (typeof data !== "object" || data === null) return fallback;
-  if ("detail" in data) {
-    const d = (data as { detail: unknown }).detail;
-    if (typeof d === "string") return d;
-  }
-  if ("message" in data) {
-    const m = (data as { message: unknown }).message;
-    if (typeof m === "string") return m;
-  }
-  return fallback;
-}
 
 export function useManim() {
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
-  async function renderScene(): Promise<void> {
+  async function renderScene(sceneClass: string = "TitleSlide") {
     setLoading(true);
-    setError(null);
-    setVideoUrl(null);
+    setError("");
+    setVideoUrl("");
+
     try {
-      const res = await fetch(apiUrl("/manim/render"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+      const res = await fetch("/api/render?scene_class=" + sceneClass, {
+        method: "POST"
       });
-      const raw = await res.text();
-      let data: unknown = null;
-      try {
-        data = raw ? JSON.parse(raw) : null;
-      } catch {
-        setError(`Error ${res.status}: invalid JSON`);
-        return;
-      }
+
       if (!res.ok) {
-        setError(errorTextFromBody(data, `Error ${res.status}`));
+        const t = await res.text();
+        setError("Render failed: " + t);
         return;
       }
-      if (
-        typeof data === "object" &&
-        data !== null &&
-        "video_url" in data &&
-        typeof (data as { video_url: unknown }).video_url === "string" &&
-        (data as { video_url: string }).video_url.length > 0
-      ) {
-        setVideoUrl((data as { video_url: string }).video_url);
-        return;
-      }
-      setError(null);
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      setVideoUrl(url);
     } catch {
-      setError(`Cannot reach backend. ${BACKEND_HINT}`);
+      setError("Cannot reach backend.");
     } finally {
       setLoading(false);
     }
