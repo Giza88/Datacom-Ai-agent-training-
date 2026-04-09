@@ -23,7 +23,7 @@ az containerapp create \
   --registry-server $ACR_NAME.azurecr.io \
   --target-port 80 \
   --ingress external \
-  --env-vars VITE_API_URL=https://$BACKEND_URL
+  --env-vars BACKEND_ORIGIN=https://$BACKEND_URL
 
 echo "Fetching public frontend URL..."
 az containerapp show \

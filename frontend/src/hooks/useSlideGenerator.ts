@@ -1,9 +1,13 @@
 import { useState } from "react";
+import { apiUrl } from "../config/apiBase";
 import type { SlideRequest } from "../types/api";
 import {
   parseFilenameFromContentDisposition,
   safePptxFilenameFromPrompt,
 } from "../utils/pptxDownloadFilename";
+
+const BACKEND_HINT =
+  "Start the API from the backend folder: uvicorn main:app --reload --host 127.0.0.1 --port 8000 (or docker compose up backend).";
 
 export function useSlideGenerator() {
   const [status, setStatus] = useState<string>("");
@@ -13,7 +17,7 @@ export function useSlideGenerator() {
     setLoading(true);
     setStatus("Generating AI slides...");
     try {
-      const res = await fetch("/api/generate", {
+      const res = await fetch(apiUrl("/generate"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(req),
@@ -35,7 +39,7 @@ export function useSlideGenerator() {
       URL.revokeObjectURL(a.href);
       setStatus("✅ AI slides downloaded!");
     } catch {
-      setStatus("Cannot reach backend.");
+      setStatus(`Cannot reach backend. ${BACKEND_HINT}`);
     } finally {
       setLoading(false);
     }

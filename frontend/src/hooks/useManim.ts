@@ -1,10 +1,8 @@
 import { useState } from "react";
+import { apiUrl } from "../config/apiBase";
 
-const MANIM_RENDER_URL =
-  import.meta.env.VITE_API_BASE_URL != null &&
-  String(import.meta.env.VITE_API_BASE_URL).trim() !== ""
-    ? `${String(import.meta.env.VITE_API_BASE_URL).replace(/\/$/, "")}/manim/render`
-    : "/api/manim/render";
+const BACKEND_HINT =
+  "Start the API from the backend folder: uvicorn main:app --reload --host 127.0.0.1 --port 8000 (or docker compose up backend).";
 
 function errorTextFromBody(data: unknown, fallback: string): string {
   if (typeof data !== "object" || data === null) return fallback;
@@ -29,7 +27,7 @@ export function useManim() {
     setError(null);
     setVideoUrl(null);
     try {
-      const res = await fetch(MANIM_RENDER_URL, {
+      const res = await fetch(apiUrl("/manim/render"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
@@ -58,7 +56,7 @@ export function useManim() {
       }
       setError(null);
     } catch {
-      setError("Cannot reach backend. Is FastAPI running?");
+      setError(`Cannot reach backend. ${BACKEND_HINT}`);
     } finally {
       setLoading(false);
     }

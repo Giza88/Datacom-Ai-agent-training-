@@ -4,3 +4,4 @@ python-pptx==1.0.2
 pydantic==2.11.7
 aiohttp==3.11.18
 manim==0.20.1
+mcp==1.27.0
