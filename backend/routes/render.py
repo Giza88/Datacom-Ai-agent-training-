@@ -9,7 +9,7 @@ router = APIRouter()
 @router.post("/render")
 async def render(scene_class: str = "TitleSlide"):
     path = render_manim_scene(
-        "manim_scenes/title_scene.py",
+        "manim_scenes/render.py",
         scene_class,
         quality="l",
     )
