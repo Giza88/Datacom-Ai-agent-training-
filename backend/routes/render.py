@@ -6,10 +6,11 @@ router = APIRouter()
 
 
 @router.post("/render")
-async def render(scene_class: str = "TitleSlide"):
+def render(scene_class: str = "TitleSlide"):
+    # Sync def → FastAPI threadpool; avoids blocking the loop during Manim subprocess.run.
     path = render_manim_scene(
         "manim_scenes/title_scene.py",
         scene_class,
-        quality="l"
+        quality="l",
     )
     return FileResponse(path, media_type="video/mp4")
