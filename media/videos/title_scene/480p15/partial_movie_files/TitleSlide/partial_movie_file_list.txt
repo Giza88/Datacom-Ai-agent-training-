@@ -1,5 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:C:/Users/Stefa/slide-gen-workshop/media/videos/title_scene/480p15/partial_movie_files/TitleSlide/4000139130_2731332184_223132457.mp4'
-file 'file:C:/Users/Stefa/slide-gen-workshop/media/videos/title_scene/480p15/partial_movie_files/TitleSlide/2940031535_4038353960_3371315529.mp4'
-file 'file:C:/Users/Stefa/slide-gen-workshop/media/videos/title_scene/480p15/partial_movie_files/TitleSlide/2940031535_2408024828_1094401130.mp4'
-file 'file:C:/Users/Stefa/slide-gen-workshop/media/videos/title_scene/480p15/partial_movie_files/TitleSlide/2940031535_80280176_3128756998.mp4'

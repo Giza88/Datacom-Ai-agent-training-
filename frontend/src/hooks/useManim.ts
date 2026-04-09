@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "../config/apiBase";
 
 export function useManim() {
   const [videoUrl, setVideoUrl] = useState<string>("");
@@ -11,8 +12,11 @@ export function useManim() {
     setVideoUrl("");
 
     try {
-      const res = await fetch("/api/render?scene_class=" + sceneClass, {
-        method: "POST"
+      const renderUrl = `${apiUrl("/render")}?${new URLSearchParams({
+        scene_class: sceneClass,
+      })}`;
+      const res = await fetch(renderUrl, {
+        method: "POST",
       });
 
       if (!res.ok) {
